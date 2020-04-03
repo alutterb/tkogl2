@@ -7,15 +7,15 @@
 #define TCL_CMD(name) int name(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 
 #define TCL_RESULT1(info, arg1) \
-	char *msg = ckalloc(512); \
+	char *msg = Tcl_Alloc(512); \
 	sprintf(msg, info, arg1); \
 	Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 #define TCL_RESULT2(info, arg1, arg2) \
-	char *msg = ckalloc(512); \
+	char *msg = Tcl_Alloc(512); \
 	sprintf(msg, info, arg1, arg2); \
 	Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 #define TCL_RESULT3(info, arg1, arg2, arg3) \
-	char *msg = ckalloc(512); \
+	char *msg = Tcl_Alloc(512); \
 	sprintf(msg, info, arg1, arg2, arg3); \
 	Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 
@@ -76,7 +76,7 @@ int setWindowId(HWND hwnd)
 	/* Setup OpenGL. */
 	dc = GetDC(hwnd);
 
-	 
+
 
 	/* Windows code, setup OpenGL. */
 	PIXELFORMATDESCRIPTOR pfd;
@@ -149,7 +149,7 @@ int setWindowId(HWND hwnd)
 void resetContext(int id, float maxXY)
 {
 
-	 
+
 
 	context[id].x = 0.0;
 	context[id].y = 0.0;
@@ -244,7 +244,7 @@ void drawDots()
 		n = n->next;
 	}
 
-	 
+
 }
 
 void drawAnchors()
@@ -276,7 +276,7 @@ void drawAnchors()
 		n = n->next;
 	}
 
-	 
+
 }
 
 void drawCurves()
@@ -348,7 +348,7 @@ void onDisplay()
 			drawDots();
 			drawAnchors();
 			ogl_drawDownSampleModel(models, dotRadius, &downSampleOffset);
-			 
+
 			break;
 		case CURVE:
 			drawDots();
@@ -356,7 +356,7 @@ void onDisplay()
 			break;
 		case DOWN_SAMPLE_ONLY:
 			ogl_drawDownSampleModel(models, dotRadius, &downSampleOffset);
-			 
+
 			break;
 		}
 	}
@@ -370,7 +370,7 @@ void onDisplay()
 	glXSwapBuffers(__glDisplay__, __glWindow__);
 #endif
 
-	 
+
 }
 
 void getSpecimenCoordinate(int x, int y, point_t* p, char* buf)
@@ -410,11 +410,11 @@ void specimen_del(int id)
 		return;
 	}
 
-	ckfree((char*)model);
+	Tcl_Free((char*)model);
 	model = NULL;
-	Tcl_ValidateAllMemory(__FILE__, __LINE__);
-	//_CrtDumpMemoryLeaks();
 	 
+	//_CrtDumpMemoryLeaks();
+
 }
 
 int valiadteDot(point_t* p)
@@ -515,11 +515,11 @@ TCL_CMD(add)
 		color_t c = { -1.0, -1.0, -1.0 };
 		int size = dot_add(&p, &c);
 
-		char* msg = ckalloc(512);
+		char* msg = Tcl_Alloc(512);
 		sprintf(msg, "add dot (total = %d): %f %f %f\n", size, p.x, p.y, p.z);
 		Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 
-		 
+
 	}
 
 	else if (strcmp(shape, "rawanchor") == 0)
@@ -531,11 +531,14 @@ TCL_CMD(add)
 		point_t p;
 		Tcl_GetDoubleFromObj(interp, objv[2], &p.x);
 		Tcl_GetDoubleFromObj(interp, objv[3], &p.y);
-		Tcl_GetDoubleFromObj(interp, objv[4], &p.z);
+		Tcl_GetDoubleFromObj(interp, objv[4], &p.z);//
 
 		p.x = ogl_calCoordinate(p.x, 0, deltas[temp_index]); //original is models->delta
 		p.y = ogl_calCoordinate(p.y, 1, deltas[temp_index]);
 		p.z = ogl_calCoordinate(p.z, 2, deltas[temp_index]);
+		/*p.x = ogl_calCoordinate(p.x, 0, models->delta);
+		p.y = ogl_calCoordinate(p.y, 1, models->delta);
+		p.z = ogl_calCoordinate(p.z, 2, models->delta);*/
 
 		if (!valiadteDot(&p))
 		{
@@ -546,13 +549,13 @@ TCL_CMD(add)
 		color_t c = { -1.0, -1.0, -1.0 };
 		int size = anchor_add(&p, &c);
 
-		char* msg = ckalloc(512);
+		char* msg = Tcl_Alloc(512);
 		sprintf(msg, "add anchor (total = %d): %f %f %f\n", size, p.x, p.y, p.z);
 		Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 
 		anchorPlaced = 1;
 
-		 
+
 	}
 
 	else if (strcmp(shape, "dot") == 0)
@@ -570,11 +573,11 @@ TCL_CMD(add)
 		color_t c = { -1.0, -1.0, -1.0 };
 		int size = dot_add(&p, &c);
 
-		char* msg = ckalloc(512);
+		char* msg = Tcl_Alloc(512);
 		sprintf(msg, "add dot (total = %d): %f %f %f\n", size, p.x, p.y, p.z);
 		Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 
-		 
+
 	}
 	else if (strcmp(shape, "anchor") == 0)
 	{
@@ -592,11 +595,11 @@ TCL_CMD(add)
 		int size = anchor_add(&p, &c);
 		anchorPlaced = 1;
 
-		char* msg = ckalloc(512);
+		char* msg = Tcl_Alloc(512);
 		sprintf(msg, "add dot (total = %d): %f %f %f\n", size, p.x, p.y, p.z);
 		Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 
-		 
+
 	}
 	else if (strcmp(shape, "downsample") == 0)
 	{
@@ -605,14 +608,13 @@ TCL_CMD(add)
 		FILE* file = fopen(Tcl_GetStringFromObj(objv[2], NULL), "r");
 		if (file)
 		{
-			
+
 			/*if (ogl_loadDownSampleModel(file, &models[0]) != 0)
 			{
 				downsampled = 1;//
 			}*/
-			ogl_loadDownSampleModel(file, &models);
+			ogl_loadDownSampleModel(file, models);
 			fclose(file);
-			 
 		}
 	}
 	else if (strcmp(shape, "landmark") == 0)
@@ -684,12 +686,12 @@ TCL_CMD(show)
 			point_t p;
 			getSpecimenCoordinate(x, y, &p, buf);
 
-			char* msg = ckalloc(512);
+			char* msg = Tcl_Alloc(512);
 			sprintf(msg, "%f %f %f", p.x, p.y, p.z);
 			Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 		}
 
-		 
+
 	}
 	else if (strcmp(shape, "landmark") == 0)
 	{
@@ -700,7 +702,7 @@ TCL_CMD(show)
 			Tcl_GetIntFromObj(interp, objv[3], &id);
 			temp_index = id;
 
-			char* msg = ckalloc(2048);
+			char* msg = Tcl_Alloc(2048);
 			strcpy(msg, "");
 
 			dot_t* n = dot_get(id);
@@ -713,9 +715,9 @@ TCL_CMD(show)
 						calUnCoordinate(n->p.x, X, deltas[temp_index]), //for original, change back to models->delta
 						calUnCoordinate(n->p.y, Y, deltas[temp_index]),
 						calUnCoordinate(n->p.z, Z, deltas[temp_index]));
-					/*calUnCoordinate(n->p.x, X, models->delta),
-					calUnCoordinate(n->p.y, Y, models->delta),
-					calUnCoordinate(n->p.z, Z, models->delta));*/
+					/*calUnCoordinate(n->p.x, X, models[id].delta),
+					calUnCoordinate(n->p.y, Y, models[id].delta),
+					calUnCoordinate(n->p.z, Z, models[id].delta));*/
 
 					strcat(msg, pStr);
 				}
@@ -725,7 +727,7 @@ TCL_CMD(show)
 
 			Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 
-			 
+
 
 			return TCL_OK;
 		}
@@ -744,7 +746,7 @@ TCL_CMD(show)
 			int id;
 			Tcl_GetIntFromObj(interp, objv[3], &id);
 
-			char* msg = ckalloc(2048);
+			char* msg = Tcl_Alloc(2048);
 			strcpy(msg, "");
 
 			dot_t* n = anchor_get(id);
@@ -758,13 +760,16 @@ TCL_CMD(show)
 						calUnCoordinate(n->p.x, X, deltas[temp_index]),
 						calUnCoordinate(n->p.y, Y, deltas[temp_index]),
 						calUnCoordinate(n->p.z, Z, deltas[temp_index]));
+					/*calUnCoordinate(n->p.x, X, models[id].delta),
+					calUnCoordinate(n->p.y, Y, models[id].delta),
+					calUnCoordinate(n->p.z, Z, models[id].delta));*/
 					strcat(msg, pStr);
 				}
 				n = n->next;
 				D1("msg=%s", msg);
 			}
 
-			 
+
 
 			Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 			return TCL_OK;
@@ -790,13 +795,13 @@ TCL_CMD(setWindow)
 
 		if (models != NULL)
 		{
-			ckfree((char*)models);
+			Tcl_Free((char*)models);
 			models = NULL;
 		}
 
 		if (context != NULL)
 		{
-			ckfree((char*)context);
+			Tcl_Free((char*)context);
 			context = NULL;
 		}
 		model_index = 0;
@@ -805,7 +810,7 @@ TCL_CMD(setWindow)
 		anchors_slice_amount(0);
 
 		setWindowId(hwnd);
-		Tcl_ValidateAllMemory(__FILE__, __LINE__);
+		 
 	}
 	else if (strcmp(attr, "size") == 0)
 	{
@@ -874,14 +879,14 @@ TCL_CMD(setSpecimen)
 			ANGLE_REDUCE(context[model_index].rotation[2]);
 			break;
 		}
-		char* msg = ckalloc(512);
+		char* msg = Tcl_Alloc(512);
 		sprintf(msg, "Rotate: %f %f %f",
 			context[model_index].rotation[0],
 			context[model_index].rotation[1],
 			context[model_index].rotation[2]);
 		Tcl_SetResult(interp, msg, TCL_DYNAMIC);
 
-		 
+
 	}
 	else if (strcmp(attr, "scale") == 0)
 	{
@@ -906,22 +911,23 @@ TCL_CMD(setSpecimen)
 	{
 
 		int amount = 0;
-		Tcl_GetIntFromObj(interp, objv[2], &amount);//
+		Tcl_GetIntFromObj(interp, objv[2], &amount);
 
 		if (models != NULL)
 		{
-			ckfree((char*)models);
+			Tcl_Free((char*)models);
 			models = NULL;
 		}
 		if (context != NULL)
 		{
-			ckfree((char*)context);
+			Tcl_Free((char*)context);
 			context = NULL;
 		}
 		if (amount > 0) {
-			models = (model_t*)ckalloc(sizeof(model_t));
-			context = (context_t*)ckalloc(amount*sizeof(context_t));
-			memset(models, 0, sizeof(model_t));
+			models = (model_t*)Tcl_Alloc(sizeof(model_t));
+			context = (context_t*)Tcl_Alloc(amount * sizeof(context_t));
+			//memset(models, 0, sizeof(model_t));
+			//memset(context, 0, sizeof(context_t));
 			//memset(deltas, NULL, sizeof(float*));
 		}
 
@@ -930,36 +936,9 @@ TCL_CMD(setSpecimen)
 
 		dot_slice_amount(amount);
 		anchors_slice_amount(amount);
-		Tcl_ValidateAllMemory(__FILE__, __LINE__);
+		 
 
 		return TCL_OK;
-	}
-	else if (strcmp(attr, "reload") == 0)
-	{
-
-		//int id = 0;
-		//Tcl_GetIntFromObj(interp, objv[2], &id);
-
-
-		///*if (models != NULL)
-		//{
-		//	ckfree((char*)models);
-		//	models = NULL;
-		//}
-
-		//if (context != NULL)
-		//{
-		//	ckfree((char*)context);
-		//	context = NULL;
-		//}*/
-
-		//dot_slice_index(id);
-		//anchor_slice_index(id);
-		//models = (model_t*)ckalloc(sizeof(model_t));
-		//context = (context_t*)ckalloc(sizeof(context_t));
-		//memset(models, 0, sizeof(model_t));
-
-		// 
 	}
 	else if (strcmp(attr, "id") == 0)
 	{
@@ -1022,7 +1001,7 @@ TCL_CMD(setDownSample)
 		downSampleOffset.z = 0.0;//p.z - downSampleOffsetBeg.z;
 	}
 	onDisplay();
-	 
+
 	return TCL_OK;
 }
 
@@ -1183,18 +1162,18 @@ TCL_CMD(del)
 
 		if (models != NULL)
 		{
-			ckfree((char*)models);
+			Tcl_Free((char*)models);
 			models = NULL;
 		}
 		if (context != NULL)
 		{
-			ckfree((char*)context);
+			Tcl_Free((char*)context);
 			context = NULL;
 		}*/
 	}
 	onDisplay();
 
-	 
+
 
 	return TCL_OK;
 }
@@ -1205,16 +1184,16 @@ TCL_CMD(loadDgt)
 
 	model_index = 0;
 	//model_amount = ogl_loadDgtModel(fileName, &models);
-	memcpy(&deltas[model_index], &(models->delta), sizeof(models->delta));
+	//memcpy(&deltas[model_index], &(models->delta), sizeof(models->delta));
 
 	/*if (context != NULL)
 	{
-		ckfree((char*)context);
+		Tcl_Free((char*)context);
 		context = NULL;
 	}*/
 	if (model_amount > 0) {
-		context = (context_t*)ckalloc(model_amount * sizeof(context_t));
-		//context = (context_t*)ckalloc(sizeof(context_t));
+		context = (context_t*)Tcl_Alloc(model_amount * sizeof(context_t));
+		//context = (context_t*)Tcl_Alloc(sizeof(context_t));
 		int id = 0;
 		float maxXY = models->max[0] > models->max[1] ? models->max[0] : models->max[1];
 		if (maxXY > 0.8)
@@ -1247,10 +1226,10 @@ TCL_CMD(loadDgt)
 		}
 		resetContext(id, maxXY);
 
-		Tcl_ValidateAllMemory(__FILE__, __LINE__);
+		 
 	}
 
-	 
+
 
 	onDisplay();
 	return TCL_OK;
